@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: file:${PUBLIC_KEY_PATH}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  config:
+    import: "classpath:rest_config.yml"
+  application:
+    name: me
+server:
+  port: 8080
+
+jwt:
+  public-key-path: ${PUBLIC_KEY_PATH}
+
+
+
