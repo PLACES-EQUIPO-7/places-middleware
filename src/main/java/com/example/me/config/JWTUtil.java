@@ -3,6 +3,7 @@ package com.example.me.config;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.example.me.utils.RSAKeyLoader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.interfaces.RSAPublicKey;
@@ -12,9 +13,9 @@ public class JWTUtil {
 
     private final Algorithm ALGORITHM;
 
-    public JWTUtil() throws Exception {
+    public JWTUtil(@Value("${jwt.public-key-path}") final String publicKeyPath) throws Exception {
 
-        RSAPublicKey PUBLIC_KEY = RSAKeyLoader.loadPublicKey("./src/main/resources/public_key.pem");
+        RSAPublicKey PUBLIC_KEY = RSAKeyLoader.loadPublicKey(publicKeyPath);
         ALGORITHM = Algorithm.RSA256(PUBLIC_KEY, null);
     }
 

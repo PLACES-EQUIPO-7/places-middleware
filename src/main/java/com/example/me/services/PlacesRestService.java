@@ -52,7 +52,7 @@ public class PlacesRestService {
                     .retrieve()
                     .body(List.class);
         } catch (Exception e) {
-            throw new ApiException("Unexpected error occurred while creating PLACE", ErrorCode.INTERNAL_ERROR);
+            throw new ApiException("Unexpected error occurred while getting PLACES", ErrorCode.INTERNAL_ERROR);
         }
 
         return userPlaces;
