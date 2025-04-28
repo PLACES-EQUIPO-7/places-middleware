@@ -4,6 +4,7 @@ import com.example.me.DTOs.RegisterUserAndPLaceDTO;
 import com.example.me.DTOs.UserPLaceDTO;
 import com.example.me.config.JWTUtil;
 import com.example.me.services.OperationsService;
+import com.example.me.utils.enums.UserRole;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +37,19 @@ public class PlaceController {
     }
 
     @PostMapping("/register/user-place")
-    public ResponseEntity<Void> createUser(@RequestBody RegisterUserAndPLaceDTO register) {
+    public ResponseEntity<Void> createUser(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestBody RegisterUserAndPLaceDTO register)
+    {
+        String userId = jwtUtil.getUserFromToken(authorization);
 
-        operationsService.registerUserAndPLace(register);
+        String userRole = jwtUtil.getRoleFromToken(authorization);
+
+        if (!UserRole.AGGREGATOR.getValue().equals(userRole)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        operationsService.registerUserAndPLace(register, userId);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

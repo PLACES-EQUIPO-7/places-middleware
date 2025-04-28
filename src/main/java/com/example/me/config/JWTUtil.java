@@ -28,4 +28,14 @@ public class JWTUtil {
                 .verify(token)
                 .getSubject();
     }
+
+    public String getRoleFromToken(String token) {
+        token = token.replace("Bearer ", "");
+        token = token.trim();
+        return JWT.require(ALGORITHM)
+                .build()
+                .verify(token)
+                .getClaim("role")
+                .asString();
+    }
 }

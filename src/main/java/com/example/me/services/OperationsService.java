@@ -1,16 +1,17 @@
 package com.example.me.services;
 
-import com.example.me.DTOs.RegisterUserAndPLaceDTO;
-import com.example.me.DTOs.UserDTO;
-import com.example.me.DTOs.UserPLaceDTO;
-import com.example.me.DTOs.place.CreatePLaceDTO;
-import com.example.me.DTOs.place.PLaceDTO;
+import com.example.me.DTOs.*;
+import com.example.me.exceptions.DataNotFoundException;
+import com.example.me.utils.enums.UserPlaceRole;
+import com.example.me.utils.enums.UserRole;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class OperationsService {
 
     private final UsersRestService usersRestService;
@@ -23,24 +24,60 @@ public class OperationsService {
     }
 
 
-    public void registerUserAndPLace(RegisterUserAndPLaceDTO register) {
+    public void registerUserAndPLace(RegisterUserAndPLaceDTO register, String aggregatorUserId) {
 
-        UserDTO userDTO = usersRestService.createUser(register.getUser());
+        UserDTO user = getOrCreateUser(register.getUser());
 
-        PLaceDTO pLaceDTO = placesRestService.createPlace(buildCreatePLaceDTO(register.getPlace(), userDTO));
+        placesRestService.registerUser(user);
+
+
+        PlaceDTO place = getOrCreatePlace(register.getPlace());
+
+
+        //link user
+        placesRestService.linkPlace(buildlinkUserPLaceDTO(user, register.getPlace(), register.getRole()));
+
+        //link aggregator
+        placesRestService.linkPlace(buildlinkUserPLaceDTO(
+                UserDTO.builder().id(aggregatorUserId).build(),
+                register.getPlace(),
+                UserPlaceRole.PLACE_AGGREGATOR));
+
 
     }
 
-    private CreatePLaceDTO buildCreatePLaceDTO(@NotNull PLaceDTO place, UserDTO userDTO) {
-        return CreatePLaceDTO.builder()
-                .UserId(userDTO.getId())
-                .name(place.getName())
-                .address(place.getAddress())
-                .latitude(place.getLatitude())
-                .longitude(place.getLongitude())
-                .zipCode(place.getZipCode())
+    private PlaceDTO getOrCreatePlace(PlaceDTO placeDTO) {
+
+        try {
+           return placesRestService.getPlaceByDNI(placeDTO.getNit());
+        } catch (DataNotFoundException e) {
+            log.warn("Place not found " + placeDTO.getNit());
+            return placesRestService.createPlace(placeDTO);
+        }
+
+    }
+
+    private UserDTO getOrCreateUser(@NotNull(message = "user is required") CreateUserDTO userDTO) {
+
+        userDTO.setRole(UserRole.STANDARD_USER);
+
+        try {
+            return usersRestService.getUserByDNI(userDTO.getDNI());
+        } catch (DataNotFoundException e) {
+            log.warn("User not found " + userDTO.getDNI());
+            return usersRestService.createUser(userDTO);
+        }
+
+    }
+
+    private LinkUserPLaceDto buildlinkUserPLaceDTO(UserDTO user, PlaceDTO place, UserPlaceRole role) {
+        return LinkUserPLaceDto.builder()
+                .placeNIT(place.getNit())
+                .userId(user.getId())
+                .role(role)
                 .build();
     }
+
 
     public List<UserPLaceDTO> getPlacesByUser(String userId) {
         return placesRestService.getPlacesByUser(userId);

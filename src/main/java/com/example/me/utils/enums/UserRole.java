@@ -7,7 +7,7 @@ import java.util.Arrays;
 public enum UserRole {
 
     STANDARD_USER("standard_user"),
-    ADMIN("admin");
+    AGGREGATOR("aggregator");
 
     UserRole(String value) {
         this.value = value;

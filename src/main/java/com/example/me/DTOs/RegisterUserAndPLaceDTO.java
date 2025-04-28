@@ -1,7 +1,6 @@
 package com.example.me.DTOs;
 
-import com.example.me.DTOs.place.CreatePLaceDTO;
-import com.example.me.DTOs.place.PLaceDTO;
+import com.example.me.utils.enums.UserPlaceRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,10 +13,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterUserAndPLaceDTO  {
 
-    @NotNull
+    @NotNull(message = "user is required")
     private CreateUserDTO user;
 
-    @NotNull
-    private PLaceDTO place;
+    @NotNull(message = "place is required")
+    private PlaceDTO place;
+
+    @NotNull(message = "role is required")
+    private UserPlaceRole role;
 
 }
