@@ -3,6 +3,7 @@ package com.example.me.services;
 import com.example.me.DTOs.CreateUserDTO;
 import com.example.me.DTOs.UserDTO;
 import com.example.me.DTOs.users.LoginDTO;
+import com.example.me.DTOs.users.LoginTokenDTO;
 import com.example.me.exceptions.ApiException;
 import com.example.me.exceptions.DataNotFoundException;
 import com.example.me.exceptions.UnAuthorizedException;
@@ -29,6 +30,8 @@ public class UsersRestService {
     private static final String USERS_CREATE_URL = "/api/users/create";
 
     private static final String USERS_AUTH_URL = "/api/users/login";
+
+    private static final String USERS_AUTH_URL_GOOGLE = "/api/users/login/google";
 
     private static final String USERS_GET_URL = "/api/users?user_id=%s";
 
@@ -110,6 +113,36 @@ public class UsersRestService {
                     .body(loginDTO)
                     .retrieve()
                      .toEntity(Void.class);
+
+        } catch (HttpClientErrorException e) {
+
+            if (e.getStatusCode().value() == 401) {
+                throw new UnAuthorizedException("Unauthorized: ", ErrorCode.UNAUTHORIZED);
+            }
+
+        } catch (Exception e) {
+            throw new ApiException("Unexpected error occurred while login user", ErrorCode.INTERNAL_ERROR);
+        }
+
+        return response.getHeaders().getFirst("Authorization");
+
+    }
+
+    public String loginWithGmail(String token) {
+
+        LoginTokenDTO loginTokenDTO = LoginTokenDTO.builder()
+                .token(token)
+                .build();
+
+        ResponseEntity<Void> response = null;
+
+
+        try {
+            response = usersRestClient.post()
+                    .uri(USERS_AUTH_URL_GOOGLE)
+                    .body(loginTokenDTO)
+                    .retrieve()
+                    .toEntity(Void.class);
 
         } catch (HttpClientErrorException e) {
 

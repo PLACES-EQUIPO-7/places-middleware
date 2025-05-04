@@ -7,6 +7,10 @@ clients:
     base-url: ${PLACES_BASE_URL}
     connection-timeout: 5000
     socket-timeout: 5000
+  google-auth:
+    base-url: https://oauth2.googleapis.com
+    connection-timeout: 5000
+    socket-timeout: 5000
 
 logging:
   level:

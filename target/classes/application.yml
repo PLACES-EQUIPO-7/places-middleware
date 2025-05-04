@@ -1,6 +1,10 @@
 spring:
   security:
     oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
       resourceserver:
         jwt:
           public-key-location: file:${PUBLIC_KEY_PATH}

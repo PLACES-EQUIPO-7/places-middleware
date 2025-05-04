@@ -6,14 +6,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -23,15 +21,19 @@ public class SecurityConfig {
     @Primary
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        return http.authorizeHttpRequests(request -> {
+        return http
+                .cors(cors -> cors.configurationSource(getConfigurationSource()))
+                .authorizeHttpRequests(request -> {
                     request
-                            .requestMatchers(HttpMethod.POST, "/api/places/login").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/places/login/**").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/places/login/google").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/places/login/google/callback").permitAll()
                             .anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(auth2 ->
                         auth2.jwt(Customizer.withDefaults()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(getConfigurationSource()))
+
                 .build();
     }
 
