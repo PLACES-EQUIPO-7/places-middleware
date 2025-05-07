@@ -9,6 +9,8 @@ import com.example.me.config.GoogleTokenValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,6 +25,12 @@ public class AuthService {
 
     private final UsersRestService usersRestService;
 
+    @Value( "${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
+
+    @Value( "${spring.security.oauth2.client.registration.google.client-secret}")
+    private String googleClientSecret;
+
     private final ObjectMapper objectMapper;
 
     public String login(LoginDTO login) {
@@ -35,8 +43,8 @@ public class AuthService {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("code", code);
-        formData.add("client_id", "----");
-        formData.add("client_secret", "----");
+        formData.add("client_id", googleClientId);
+        formData.add("client_secret", googleClientSecret);
         formData.add("grant_type", "authorization_code");
         formData.add("redirect_uri", "http://localhost:8080/api/places/login/google/callback");
 
