@@ -31,6 +31,11 @@ public class AuthService {
     @Value( "${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
+    @Value("${spring.application.host}")
+    private String host;
+
+
+
     private final ObjectMapper objectMapper;
 
     public String login(LoginDTO login) {
@@ -46,7 +51,7 @@ public class AuthService {
         formData.add("client_id", googleClientId);
         formData.add("client_secret", googleClientSecret);
         formData.add("grant_type", "authorization_code");
-        formData.add("redirect_uri", "http://localhost:8080/api/places/login/google/callback");
+        formData.add("redirect_uri", String.format("http://%s/api/places/login/google/callback", host));
 
 
         AuthResponseDTO authResponseDTO = googleAuthRestService.getAuthCode(formData);
