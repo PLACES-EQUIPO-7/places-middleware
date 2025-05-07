@@ -17,6 +17,7 @@ public class JWTUtil {
 
         RSAPublicKey PUBLIC_KEY = RSAKeyLoader.loadPublicKey(publicKeyPath);
         ALGORITHM = Algorithm.RSA256(PUBLIC_KEY, null);
+
     }
 
 

@@ -8,11 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginDTO {
+public class LoginTokenDTO {
 
-    @NotBlank
-    private String userName;
+    @NotBlank(message = "token is required")
+    private String token;
 
-    @NotBlank
-    private String password;
 }

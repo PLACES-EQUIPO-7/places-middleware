@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.JettyClientHttpRequestFactory;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
 
@@ -24,6 +26,7 @@ public class RestConfig {
         httpClient.setIdleTimeout(socketTimeout);
 
         JettyClientHttpRequestFactory factory = new JettyClientHttpRequestFactory(httpClient);
+        FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 
         var converter = new MappingJackson2HttpMessageConverter(objectMapper);
 
@@ -32,7 +35,8 @@ public class RestConfig {
                 .baseUrl(baseUrl)
                 .messageConverters(converters -> {
                     converters.clear(); // remové todos los anteriores
-                    converters.add(converter); // agregá solo el que usa snake_case
+                    converters.add(converter);
+                    converters.add(formHttpMessageConverter);// agregá solo el que usa snake_case
                 })
                 .build();
     }
@@ -54,6 +58,16 @@ public class RestConfig {
                 Integer.valueOf(env.getProperty("clients.places.connection-timeout")),
                 Integer.valueOf(env.getProperty("clients.places.socket-timeout")),
                 env.getProperty("clients.places.base-url")
+        );
+    }
+
+    @Bean
+    public RestClient googleRestClient(Environment env) {
+
+        return buildRestCLient(
+                Integer.valueOf(env.getProperty("clients.google-auth.connection-timeout")),
+                Integer.valueOf(env.getProperty("clients.google-auth.socket-timeout")),
+                env.getProperty("clients.google-auth.base-url")
         );
     }
 
