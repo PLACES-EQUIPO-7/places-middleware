@@ -1,6 +1,7 @@
 package com.example.me.DTOs;
 
 import com.example.me.utils.enums.DNIType;
+import com.example.me.utils.enums.UserPlaceRole;
 import com.example.me.utils.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
@@ -44,5 +45,9 @@ public class UserDTO {
 
     @NotNull(message = "role is required")
     private UserRole role;
+
+    private UserPlaceRole placeRole;
+
+    private boolean isEnabled;
 
 }
