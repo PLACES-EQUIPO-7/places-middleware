@@ -5,6 +5,7 @@ import com.example.me.DTOs.PlaceDTO;
 import com.example.me.DTOs.UserDTO;
 import com.example.me.DTOs.UserPLaceDTO;
 import com.example.me.DTOs.place.BillingDTO;
+import com.example.me.DTOs.place.ChangeStatusDTO;
 import com.example.me.DTOs.place.PlaceUsersDTO;
 import com.example.me.DTOs.place.ShipmentDTO;
 import com.example.me.exceptions.ApiException;
@@ -32,6 +33,12 @@ public class PlacesRestService {
     private static final String GET_PLACE_BILLING_URL = "/api/places/billing?place_id=%s&month=%s&year=%s";
 
     private static final String GET_PLACE_SHIPMENTS_URL = "/api/places/shipments?place_id=%s";
+
+    private static final String GET_SHIPMENT_BY_ID_URL = "/api/places/shipment/by/id/%s";
+
+    private static final String GET_SHIPMENT_BY_PHRASE_URL = "/api/places/shipment/by/phrase/%s";
+
+    private static final String PUT_CHANGE_STATUS = "/api/places/change/status";
 
     private static final String GET_USERS_BY_PLACE_URL = "/api/places/place/users?place_id=%s";
 
@@ -204,5 +211,68 @@ public class PlacesRestService {
 
         return placeUsersDTO;
 
+    }
+
+    public ShipmentDTO getShipmentByPhrase(Long shipmentId) {
+        ShipmentDTO shipments = null;
+        String url = String.format(GET_SHIPMENT_BY_ID_URL, shipmentId);
+
+        try {
+            shipments = placesRestClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (HttpClientErrorException e) {
+
+            if (e.getStatusCode().value() == 404) {
+                throw new DataNotFoundException("shipments not found:", ErrorCode.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            throw new ApiException("Unexpected error occurred while getting shipments", ErrorCode.INTERNAL_ERROR);
+        }
+
+        return shipments;
+    }
+
+    public ShipmentDTO getShipmentByPhrase(String phrase) {
+        ShipmentDTO shipments = null;
+        String url = String.format(GET_SHIPMENT_BY_PHRASE_URL, phrase);
+
+        try {
+            shipments = placesRestClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (HttpClientErrorException e) {
+
+            if (e.getStatusCode().value() == 404) {
+                throw new DataNotFoundException("shipments not found:", ErrorCode.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            throw new ApiException("Unexpected error occurred while getting shipments", ErrorCode.INTERNAL_ERROR);
+        }
+
+        return shipments;
+    }
+
+    public void changeStatus(ChangeStatusDTO changeStatusDTO) {
+
+        try {
+            placesRestClient.put()
+                    .uri(PUT_CHANGE_STATUS)
+                    .body(changeStatusDTO)
+                    .retrieve()
+                    .body(Void.class);
+        } catch (HttpClientErrorException e) {
+
+            if (e.getStatusCode().value() == 404) {
+                throw new DataNotFoundException("shipments not found:", ErrorCode.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            throw new ApiException("Unexpected error occurred while changing status", ErrorCode.INTERNAL_ERROR);
+        }
     }
 }

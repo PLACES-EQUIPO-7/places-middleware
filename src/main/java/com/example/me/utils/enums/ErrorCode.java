@@ -8,7 +8,8 @@ public enum ErrorCode {
     UNAUTHORIZED("UNAUTHORIZED"),
     BAD_REQUEST("BAD_REQUEST"),
     USER_NOT_FOUND("USER_NOT_FOUND"),
-    PLACE_NO_FOUND("PLACE_NOT_FOUND");
+    PLACE_NO_FOUND("PLACE_NOT_FOUND"),
+    SHIPMENT_NOT_FOUND("SHIPMENT_NOT_FOUND");
 
      ErrorCode(String value) {
         this.value = value;

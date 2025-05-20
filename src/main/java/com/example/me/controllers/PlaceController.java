@@ -118,4 +118,30 @@ public class PlaceController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @GetMapping("/start")
+    public ResponseEntity<ShipmentDTO> start(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestParam(value = "target_id") String targetId) {
+
+        String userId = jwtUtil.getUserFromToken(authorization);
+
+        ShipmentDTO shipmentDTO = operationsService.start(targetId, userId);
+
+        return ResponseEntity.ok(shipmentDTO);
+    }
+
+    @PostMapping("/process")
+    public ResponseEntity<Void> process(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @Valid @RequestBody ShipmentDTO shipmentDTO) {
+
+        String userId = jwtUtil.getUserFromToken(authorization);
+
+        operationsService.process(shipmentDTO, userId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
 }

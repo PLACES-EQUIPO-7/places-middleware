@@ -1,10 +1,8 @@
 package com.example.me.services;
 
 import com.example.me.DTOs.*;
-import com.example.me.DTOs.place.BillingDTO;
-import com.example.me.DTOs.place.PlaceRelationshipUsersDTO;
-import com.example.me.DTOs.place.PlaceUsersDTO;
-import com.example.me.DTOs.place.ShipmentDTO;
+import com.example.me.DTOs.PlaceDTO;
+import com.example.me.DTOs.place.*;
 import com.example.me.DTOs.users.ChangePasswordDTO;
 import com.example.me.DTOs.users.UserIdsDTO;
 import com.example.me.exceptions.DataNotFoundException;
@@ -130,5 +128,68 @@ public class OperationsService {
     public UserDTO getUserById(String userId) {
 
         return usersRestService.getUser(userId);
+    }
+
+    public ShipmentDTO start(String targetId, String userId) {
+
+        ShipmentDTO shipmentDTO = null;
+
+        //recibir o entregar a la collecta
+        if (targetId.matches("^[0-9]+$")) {
+            shipmentDTO = placesRestService.getShipmentByPhrase(Long.valueOf(targetId));
+            if (isPickUpToReceive(shipmentDTO) || isDevolutionToReturn(shipmentDTO)) {
+                return shipmentDTO;
+            }
+            throw new DataNotFoundException("invalid target id " + targetId, ErrorCode.BAD_REQUEST);
+        }
+
+        //recibir o entregar al buyer
+        if (targetId.matches("^[a-zA-Z0-9.]+$")) {
+            shipmentDTO = placesRestService.getShipmentByPhrase(targetId);
+            if (isPickUpToDeliver(shipmentDTO) || isDevolutionToReceive(shipmentDTO)) {
+                return shipmentDTO;
+            }
+            throw new DataNotFoundException("invalid target id " + targetId, ErrorCode.BAD_REQUEST);
+        }
+
+        throw new DataNotFoundException("invalid target id " + targetId, ErrorCode.BAD_REQUEST);
+
+    }
+
+    private boolean isDevolutionToReceive(ShipmentDTO shipmentDTO) {
+        return ShipmentStatus.PENDING.equals(shipmentDTO.getStatus())
+                && ShipmentType.DEVOLUTION.equals(shipmentDTO.getType());
+    }
+
+    private boolean isPickUpToDeliver(ShipmentDTO shipmentDTO) {
+        return ShipmentStatus.RECEIVED.equals(shipmentDTO.getStatus())
+                && ShipmentType.PICK_UP.equals(shipmentDTO.getType());
+    }
+
+    private static boolean isDevolutionToReturn(ShipmentDTO shipmentDTO) {
+        return ShipmentStatus.RECEIVED.equals(shipmentDTO.getStatus())
+                && ShipmentType.DEVOLUTION.equals(shipmentDTO.getType());
+    }
+
+    private static boolean isPickUpToReceive(ShipmentDTO shipmentDTO) {
+        return ShipmentStatus.PENDING.equals(shipmentDTO.getStatus())
+                && ShipmentType.PICK_UP.equals(shipmentDTO.getType());
+    }
+
+    public void process(@Valid ShipmentDTO shipmentDTO, String userId) {
+
+        if (shipmentDTO.getId() == null) {
+            throw new DataNotFoundException("shipment id is required", ErrorCode.BAD_REQUEST);
+        }
+
+        ChangeStatusDTO changeStatusDTO = ChangeStatusDTO.builder()
+                .shipmentId(shipmentDTO.getId())
+                .newStatus(shipmentDTO.getStatus())
+                .build();
+
+
+        placesRestService.changeStatus(changeStatusDTO);
+
+
     }
 }
