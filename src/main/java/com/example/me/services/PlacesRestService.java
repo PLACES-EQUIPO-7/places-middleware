@@ -213,7 +213,7 @@ public class PlacesRestService {
 
     }
 
-    public ShipmentDTO getShipmentByPhrase(Long shipmentId) {
+    public ShipmentDTO getShipmentById(Long shipmentId) {
         ShipmentDTO shipments = null;
         String url = String.format(GET_SHIPMENT_BY_ID_URL, shipmentId);
 

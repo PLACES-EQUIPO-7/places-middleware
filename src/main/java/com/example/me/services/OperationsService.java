@@ -9,6 +9,7 @@ import com.example.me.exceptions.DataNotFoundException;
 import com.example.me.utils.enums.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +18,13 @@ import java.util.Objects;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OperationsService {
 
     private final UsersRestService usersRestService;
 
     private final PlacesRestService placesRestService;
 
-    public OperationsService(UsersRestService usersRestService, PlacesRestService placesRestService) {
-        this.usersRestService = usersRestService;
-        this.placesRestService = placesRestService;
-    }
 
     public BillingDTO billing(Long placeId, Integer month, Integer year) {
         return placesRestService.billing(placeId, month, year);
@@ -136,7 +134,7 @@ public class OperationsService {
 
         //recibir o entregar a la collecta
         if (targetId.matches("^[0-9]+$")) {
-            shipmentDTO = placesRestService.getShipmentByPhrase(Long.valueOf(targetId));
+            shipmentDTO = placesRestService.getShipmentById(Long.valueOf(targetId));
             if (isPickUpToReceive(shipmentDTO) || isDevolutionToReturn(shipmentDTO)) {
                 return shipmentDTO;
             }
@@ -163,6 +161,11 @@ public class OperationsService {
 
     private boolean isPickUpToDeliver(ShipmentDTO shipmentDTO) {
         return ShipmentStatus.RECEIVED.equals(shipmentDTO.getStatus())
+                && ShipmentType.PICK_UP.equals(shipmentDTO.getType());
+    }
+
+    private boolean isDeliveredPickUp(ShipmentDTO shipmentDTO) {
+        return ShipmentStatus.DELIVERED.equals(shipmentDTO.getStatus())
                 && ShipmentType.PICK_UP.equals(shipmentDTO.getType());
     }
 
