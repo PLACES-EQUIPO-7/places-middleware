@@ -32,7 +32,7 @@ public class AuthController {
 
         String token = authService.loginWIthGoogle(code);
 
-        String redirect = String.format("http://localhost:5173/dashboard?token=%s", token);
+        String redirect = String.format("http://ec2-3-128-221-93.us-east-2.compute.amazonaws.com/dashboard?token=%s", token);
 
         response.sendRedirect(redirect);
         
